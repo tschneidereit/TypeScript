@@ -266,12 +266,6 @@ module TypeScript.Services {
         }
 
         private synchronizeHostData(): void {
-            TypeScript.timeFunction(this.logger, "synchronizeHostData()", () => {
-                this.synchronizeHostDataWorker();
-            });
-        }
-
-        private synchronizeHostDataWorker(): void {
             // Reset the cache at start of every refresh
             this.hostCache = new HostCache(this.host);
 
