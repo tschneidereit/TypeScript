@@ -54,42 +54,42 @@ module TypeScript.Services {
             }
         }
 
-        public createClassifier(host: TypeScript.Services.IClassifierHost): TypeScript.Services.Classifier {
+        public createClassifier(logger: TypeScript.ILogger): TypeScript.Services.Classifier {
             try {
-                return new TypeScript.Services.Classifier(host);
+                return new TypeScript.Services.Classifier(logger);
             }
             catch (err) {
-                TypeScript.Services.logInternalError(host, err);
+                TypeScript.Services.logInternalError(logger, err);
                 throw err;
             }
         }
 
-        public createClassifierShim(host: TypeScript.Services.IClassifierHost): ClassifierShim {
+        public createClassifierShim(logger: TypeScript.ILogger): ClassifierShim {
             try {
-                return new ClassifierShim(this, host);
+                return new ClassifierShim(this, logger);
             }
             catch (err) {
-                TypeScript.Services.logInternalError(host, err);
+                TypeScript.Services.logInternalError(logger, err);
                 throw err;
             }
         }
 
-        public createCoreServices(host: TypeScript.Services.ICoreServicesHost): TypeScript.Services.CoreServices {
+        public createCoreServices(logger: TypeScript.ILogger): TypeScript.Services.CoreServices {
             try {
-                return new TypeScript.Services.CoreServices(host);
+                return new TypeScript.Services.CoreServices(logger);
             }
             catch (err) {
-                TypeScript.Services.logInternalError(host.logger, err);
+                TypeScript.Services.logInternalError(logger, err);
                 throw err;
             }
         }
 
-        public createCoreServicesShim(host: TypeScript.Services.ICoreServicesHost): CoreServicesShim {
+        public createCoreServicesShim(logger: TypeScript.ILogger): CoreServicesShim {
             try {
-                return new CoreServicesShim(this, host);
+                return new CoreServicesShim(this, logger);
             }
             catch (err) {
-                TypeScript.Services.logInternalError(host.logger, err);
+                TypeScript.Services.logInternalError(logger, err);
                 throw err;
             }
         }

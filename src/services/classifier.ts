@@ -56,7 +56,7 @@ module TypeScript.Services {
             this.lastDiagnosticKey = key;
         };
 
-        constructor(public host: IClassifierHost) {
+        constructor(public logger: ILogger) {
         }
 
         /// COLORIZATION
@@ -174,9 +174,6 @@ module TypeScript.Services {
                     return TokenClass.Identifier;
             }
         }
-    }
-
-    export interface IClassifierHost extends TypeScript.ILogger {
     }
 
     export class ClassificationResult {

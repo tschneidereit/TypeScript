@@ -22,13 +22,8 @@
 var debugObjectHost = (<any>this);
 
 module TypeScript.Services {
-
-    export interface ICoreServicesHost {
-        logger: TypeScript.ILogger;
-    }
-
     export class CoreServices {
-        constructor (public host: ICoreServicesHost) {
+        constructor (public logger: ILogger) {
         }
 
         public getPreProcessedFileInfo(fileName: string, sourceText: TypeScript.IScriptSnapshot): TypeScript.IPreProcessedFileInfo {

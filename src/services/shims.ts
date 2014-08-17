@@ -73,6 +73,7 @@ module TypeScript.Services {
         constructor(private factory: IShimFactory) {
             factory.registerShim(this);
         }
+
         public dispose(dummy: any): void {
             this.factory.unregisterShim(this);
         }
@@ -674,9 +675,9 @@ module TypeScript.Services {
     export class ClassifierShim extends ShimBase {
         public classifier: TypeScript.Services.Classifier;
 
-        constructor(factory: IShimFactory, public host: TypeScript.Services.IClassifierHost) {
+        constructor(factory: IShimFactory, public logger: TypeScript.ILogger) {
             super(factory);
-            this.classifier = new TypeScript.Services.Classifier(this.host);
+            this.classifier = new TypeScript.Services.Classifier(this.logger);
         }
 
         /// COLORIZATION
@@ -694,13 +695,11 @@ module TypeScript.Services {
     }
 
     export class CoreServicesShim extends ShimBase {
-        public logger: TypeScript.ILogger;
         public services: TypeScript.Services.CoreServices;
 
-        constructor(factory: IShimFactory, public host: TypeScript.Services.ICoreServicesHost) {
+        constructor(factory: IShimFactory, public logger: TypeScript.ILogger) {
             super(factory);
-            this.logger = this.host.logger;
-            this.services = new TypeScript.Services.CoreServices(this.host);
+            this.services = new TypeScript.Services.CoreServices(logger);
         }
 
         private forwardJSONCall(actionDescription: string, action: () =>any): any {
