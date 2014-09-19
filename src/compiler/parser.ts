@@ -786,18 +786,16 @@ module ts {
             };
         })();
 
+        function getLineStarts(): number[] {
+            return lineStarts || (lineStarts = computeLineStarts(sourceText));
+        }
+
         function getLineAndCharacterlFromSourcePosition(position: number) {
-            if (!lineStarts) {
-                lineStarts = getLineStarts(sourceText);
-            }
-            return getLineAndCharacterOfPosition(lineStarts, position);
+            return getLineAndCharacterOfPosition(getLineStarts(), position);
         }
 
         function getPositionFromSourceLineAndCharacter(line: number, character: number): number {
-            if (!lineStarts) {
-                lineStarts = getLineStarts(sourceText);
-            }
-            return getPositionFromLineAndCharacter(lineStarts, line, character);
+            return getPositionFromLineAndCharacter(getLineStarts(), line, character);
         }
 
         function error(message: DiagnosticMessage, arg0?: any, arg1?: any, arg2?: any): void {
@@ -3826,6 +3824,7 @@ module ts {
         file.text = sourceText;
         file.getLineAndCharacterFromPosition = getLineAndCharacterlFromSourcePosition;
         file.getPositionFromLineAndCharacter = getPositionFromSourceLineAndCharacter;
+        file.getLineStarts = getLineStarts;
         file.syntacticErrors = [];
         file.semanticErrors = [];
         var referenceComments = processReferenceComments(); 

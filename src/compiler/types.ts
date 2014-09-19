@@ -550,6 +550,7 @@ module ts {
         version: string;
         languageVersion: ScriptTarget;
         identifiers: Map<string>;
+        getLineStarts(): number[];
     }
 
     export interface Program {

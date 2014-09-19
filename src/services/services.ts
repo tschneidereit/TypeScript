@@ -11,6 +11,7 @@
 /// <reference path='breakpoints.ts' />
 /// <reference path='indentation.ts' />
 /// <reference path='formatting\formatting.ts' />
+/// <reference path='formatting\format.ts' />
 /// <reference path='formatting\smartIndenter.ts' />
 
 /// <reference path='core\references.ts' />
@@ -311,6 +312,7 @@ module ts {
         public text: string;
         public getLineAndCharacterFromPosition(position: number): { line: number; character: number } { return null; }
         public getPositionFromLineAndCharacter(line: number, character: number): number { return -1; }
+        public getLineStarts(): number[] { return undefined; }
         public amdDependencies: string[];
         public referencedFiles: FileReference[];
         public syntacticErrors: Diagnostic[];
@@ -625,6 +627,15 @@ module ts {
         ConvertTabsToSpaces: boolean;
     }
 
+    export function copyEditorOptions(o: EditorOptions): EditorOptions {
+        return {
+            IndentSize: o.IndentSize,
+            TabSize: o.TabSize,
+            NewLineCharacter: o.NewLineCharacter,
+            ConvertTabsToSpaces: o.ConvertTabsToSpaces
+        };
+    }
+
     export interface FormatCodeOptions extends EditorOptions {
         InsertSpaceAfterCommaDelimiter: boolean;
         InsertSpaceAfterSemicolonInForStatements: boolean;
@@ -634,6 +645,23 @@ module ts {
         InsertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis: boolean;
         PlaceOpenBraceOnNewLineForFunctions: boolean;
         PlaceOpenBraceOnNewLineForControlBlocks: boolean;
+    }
+
+    export function copyFormatCodeOptions(o: FormatCodeOptions): FormatCodeOptions {
+        return {
+            IndentSize: o.IndentSize,
+            TabSize: o.TabSize,
+            NewLineCharacter: o.NewLineCharacter,
+            ConvertTabsToSpaces: o.ConvertTabsToSpaces,
+            InsertSpaceAfterCommaDelimiter: o.InsertSpaceAfterCommaDelimiter,
+            InsertSpaceAfterSemicolonInForStatements: o.InsertSpaceAfterSemicolonInForStatements,
+            InsertSpaceBeforeAndAfterBinaryOperators: o.InsertSpaceBeforeAndAfterBinaryOperators,
+            InsertSpaceAfterKeywordsInControlFlowStatements: o.InsertSpaceAfterKeywordsInControlFlowStatements,
+            InsertSpaceAfterFunctionKeywordForAnonymousFunctions: o.InsertSpaceAfterFunctionKeywordForAnonymousFunctions,
+            InsertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis: o.InsertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis,
+            PlaceOpenBraceOnNewLineForFunctions: o.PlaceOpenBraceOnNewLineForFunctions,
+            PlaceOpenBraceOnNewLineForControlBlocks: o.PlaceOpenBraceOnNewLineForControlBlocks
+        };
     }
 
     export class DefinitionInfo {
@@ -3735,9 +3763,8 @@ module ts {
             filename = TypeScript.switchToForwardSlashes(filename);
             
             var sourceFile = getCurrentSourceFile(filename);
-            var options = new TypeScript.FormattingOptions(!editorOptions.ConvertTabsToSpaces, editorOptions.TabSize, editorOptions.IndentSize, editorOptions.NewLineCharacter)
-
-            return formatting.SmartIndenter.getIndentation(position, sourceFile, options);
+            var cachedOptions = copyEditorOptions(editorOptions);
+            return formatting.SmartIndenter.getIndentation(position, sourceFile, cachedOptions);
         }
 
         function getFormattingManager(filename: string, options: FormatCodeOptions) {
@@ -3763,6 +3790,9 @@ module ts {
 
         function getFormattingEditsForRange(fileName: string, start: number, end: number, options: FormatCodeOptions): TextChange[] {
             fileName = TypeScript.switchToForwardSlashes(fileName);
+            var sourceFile = getCurrentSourceFile(fileName);
+            var edits = formatting.formatSelection(start, end, sourceFile, copyFormatCodeOptions(options));
+
 
             var manager = getFormattingManager(fileName, options);
             return manager.formatSelection(start, end);
@@ -3771,22 +3801,30 @@ module ts {
         function getFormattingEditsForDocument(fileName: string, options: FormatCodeOptions): TextChange[] {
             fileName = TypeScript.switchToForwardSlashes(fileName);
 
+            var sourceFile = getCurrentSourceFile(fileName);
+            var edits = formatting.formatDocument(sourceFile, copyFormatCodeOptions(options));
+
             var manager = getFormattingManager(fileName, options);
             return manager.formatDocument();
         }
 
         function getFormattingEditsAfterKeystroke(fileName: string, position: number, key: string, options: FormatCodeOptions): TextChange[] {
             fileName = TypeScript.switchToForwardSlashes(fileName);
+            var sourceFile = getCurrentSourceFile(fileName);
 
             var manager = getFormattingManager(fileName, options);
+            var cachedOptions = copyFormatCodeOptions(options);
 
             if (key === "}") {
+                var edits = formatting.formatOnClosingCurly(position, sourceFile, cachedOptions);
                 return manager.formatOnClosingCurlyBrace(position);
             }
             else if (key === ";") {
+                var edits = formatting.formatOnSemicolon(position, sourceFile, cachedOptions);
                 return manager.formatOnSemicolon(position);
             }
             else if (key === "\n") {
+                var edits = formatting.formatOnEnter(position, sourceFile, cachedOptions);
                 return manager.formatOnEnter(position);
             }
 
