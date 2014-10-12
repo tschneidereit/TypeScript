@@ -234,6 +234,7 @@ interface Function {
 
     prototype: any;
     length: number;
+    name: string;
 
     // Non-standard extensions
     arguments: any;
